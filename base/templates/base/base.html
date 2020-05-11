@@ -1,0 +1,74 @@
+<h3>https://www.youtube.com/watch?v=aCpHK3TIlR8</h3>
+<br><br>
+
+<h2>Избранное</h2>
+<p>Пользователь: {% if request.user.username %}{{ request.user.username }}{% else %}неавторизованный{% endif %}</p>
+<p>Session key: {{ request.session.session_key }}</p>
+<form action="{% url 'favorites:delete' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="url_from" value="{{ request.path }}">
+    <button type="submit">Delete favorites from session</button>
+</form>
+{{ request.session.keys }}
+<br>
+{{ favorites_list }}
+<br>
+{{ request.session.favorites }}
+
+<br>
+<br>
+<hr>
+
+<h2>Статьи</h2>
+<ul>
+    {% for article in articles %}
+        <li>
+            {{ article.title }}
+            <form action="{% url 'favorites:add' id=article.id %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="type" value="article">
+                <input type="hidden" name="url_from" value="{{ request.path }}">
+                <button type="submit">Добавить в избранное</button>
+            </form>
+            {% for item in request.session.favorites %}
+                {% if item.id == article.id|stringformat:'i' and item.type == 'article' %}
+                    <form action="{% url 'favorites:remove' id=article.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="type" value="article">
+                        <input type="hidden" name="url_from" value="{{ request.path }}">
+                        <button type="submit">Удалить из избранного</button>
+                    </form>
+                {% endif %}
+            {% endfor %}
+
+        </li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h2>Продукты</h2>
+<ul>
+    {% for product in products %}
+        <li>
+            {{ product.label }}
+            <form action="{% url 'favorites:add' id=product.id %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="type" value="product">
+                <input type="hidden" name="url_from" value="{{ request.path }}">
+                <button type="submit">Добавить в избранное</button>
+            </form>
+
+            {% for item in request.session.favorites %}
+                {% if item.id == product.id|stringformat:'i' and item.type == 'product' %}
+                    <form action="{% url 'favorites:remove' id=product.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="type" value="product">
+                        <input type="hidden" name="url_from" value="{{ request.path }}">
+                        <button type="submit">Удалить из избранного</button>
+                    </form>
+                {% endif %}
+            {% endfor %}
+        </li>
+    {% endfor %}
+</ul>
